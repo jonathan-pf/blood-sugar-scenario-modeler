@@ -1,16 +1,19 @@
 import { GlucoseChart } from './components/GlucoseChart';
 import { MetricsPanel } from './components/MetricsPanel';
 import { InterventionPanel } from './components/InterventionPanel';
+import { BaselineSelector } from './components/BaselineSelector';
 import { PasswordGate } from './components/PasswordGate';
 import { useAppState } from './hooks/useAppState';
 
 function App() {
   const {
     baseline,
+    baselineKey,
     interventions,
     scenario,
     baselineMetrics,
     scenarioMetrics,
+    setBaselineKey,
     addIntervention,
     updateInterventionParams,
     toggleIntervention,
@@ -29,9 +32,12 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <header className="bg-white border-b border-gray-200 px-6 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Blood Sugar Scenario Modeler
-          </h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Blood Sugar Scenario Modeler
+            </h1>
+            <BaselineSelector selected={baselineKey} onChange={setBaselineKey} />
+          </div>
         </header>
 
         {/* Main content */}

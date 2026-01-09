@@ -1,24 +1,25 @@
 import { useState, useMemo, useCallback } from 'react';
 import type { Intervention, Metrics, CarbReductionParams } from '../types';
-import { DEFAULT_BASELINE } from '../data/constants';
+import { BASELINE_PROFILES, type BaselineProfileKey } from '../data/constants';
 import { calculateMetrics } from '../utils/metrics';
 import { computeScenario } from '../utils/interventions';
 
 interface AppState {
-  baseline: number[];
+  baselineKey: BaselineProfileKey;
   interventions: Intervention[];
 }
 
 interface UseAppStateReturn {
   // State
   baseline: number[];
+  baselineKey: BaselineProfileKey;
   interventions: Intervention[];
   scenario: number[];
   baselineMetrics: Metrics;
   scenarioMetrics: Metrics;
 
   // Actions
-  setBaseline: (baseline: number[]) => void;
+  setBaselineKey: (key: BaselineProfileKey) => void;
   addIntervention: (intervention: Intervention) => void;
   updateIntervention: (id: string, updates: Partial<Intervention>) => void;
   updateInterventionParams: (
@@ -42,20 +43,23 @@ function generateId(): string {
  */
 export function useAppState(): UseAppStateReturn {
   const [state, setState] = useState<AppState>({
-    baseline: DEFAULT_BASELINE,
+    baselineKey: 'q4Average',
     interventions: [],
   });
 
+  // Get actual baseline data from the key
+  const baseline = BASELINE_PROFILES[state.baselineKey].data;
+
   // Compute scenario whenever baseline or interventions change
   const scenario = useMemo(
-    () => computeScenario(state.baseline, state.interventions),
-    [state.baseline, state.interventions]
+    () => computeScenario(baseline, state.interventions),
+    [baseline, state.interventions]
   );
 
   // Calculate metrics for baseline and scenario
   const baselineMetrics = useMemo(
-    () => calculateMetrics(state.baseline),
-    [state.baseline]
+    () => calculateMetrics(baseline),
+    [baseline]
   );
 
   const scenarioMetrics = useMemo(
@@ -64,8 +68,8 @@ export function useAppState(): UseAppStateReturn {
   );
 
   // Actions
-  const setBaseline = useCallback((baseline: number[]) => {
-    setState((prev) => ({ ...prev, baseline }));
+  const setBaselineKey = useCallback((key: BaselineProfileKey) => {
+    setState((prev) => ({ ...prev, baselineKey: key }));
   }, []);
 
   const addIntervention = useCallback((intervention: Omit<Intervention, 'id'> & { id?: string }) => {
@@ -121,18 +125,19 @@ export function useAppState(): UseAppStateReturn {
 
   const resetToDefault = useCallback(() => {
     setState({
-      baseline: DEFAULT_BASELINE,
+      baselineKey: 'q4Average',
       interventions: [],
     });
   }, []);
 
   return {
-    baseline: state.baseline,
+    baseline,
+    baselineKey: state.baselineKey,
     interventions: state.interventions,
     scenario,
     baselineMetrics,
     scenarioMetrics,
-    setBaseline,
+    setBaselineKey,
     addIntervention,
     updateIntervention,
     updateInterventionParams,
