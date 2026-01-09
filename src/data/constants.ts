@@ -136,6 +136,36 @@ export const Q4_WORST_10: number[] = [
 ];
 // Mean: 12.76 mmol/L → A1c ~9.7%, TIR 21%
 
+// Q4 Average with better morning correction
+// Same as Q4 Average but with correction on waking to reach target by mid-morning
+export const Q4_BETTER_MORNING: number[] = [
+  11.36, // 00:00 - same overnight
+  10.80, // 01:00
+  10.58, // 02:00
+  10.76, // 03:00
+  10.76, // 04:00
+  10.39, // 05:00
+  10.06, // 06:00
+  9.50,  // 07:00 - wake & correct
+  8.50,  // 08:00 - coming down
+  7.50,  // 09:00 - continuing to drop
+  7.00,  // 10:00 - reaching target
+  6.00,  // 11:00 - at target
+  6.00,  // 12:00 - holding steady
+  6.00,  // 13:00 - holding until lunch, then rejoins
+  10.34, // 14:00 - afternoon spike (same as average)
+  11.02, // 15:00
+  10.39, // 16:00
+  9.33,  // 17:00
+  8.59,  // 18:00
+  8.73,  // 19:00
+  9.49,  // 20:00
+  10.49, // 21:00
+  11.09, // 22:00
+  11.65, // 23:00
+];
+// Improved morning → lower mean, better TIR
+
 // Profile options for baseline selector
 export const BASELINE_PROFILES = {
   default: {
@@ -153,6 +183,10 @@ export const BASELINE_PROFILES = {
   q4Worst: {
     label: 'Q4 2025 Worst 10%',
     data: Q4_WORST_10,
+  },
+  q4BetterMorning: {
+    label: 'Q4 + Better Morning Correction',
+    data: Q4_BETTER_MORNING,
   },
 } as const;
 
