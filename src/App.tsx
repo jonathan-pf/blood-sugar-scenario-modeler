@@ -16,6 +16,7 @@ function App() {
     interventions,
     scenario,
     baselineMetrics,
+    comparisonMetrics,
     scenarioMetrics,
     setBaselineKey,
     setComparisonKey,
@@ -101,6 +102,9 @@ function App() {
             <div>
               <MetricsPanel
                 baseline={baselineMetrics}
+                baselineLabel={baselineLabel}
+                comparison={comparisonMetrics ?? undefined}
+                comparisonLabel={comparisonLabel ?? undefined}
                 scenario={displayScenarioMetrics}
               />
             </div>
