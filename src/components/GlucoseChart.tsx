@@ -17,6 +17,9 @@ import {
 
 interface GlucoseChartProps {
   baseline: number[];
+  baselineLabel?: string;
+  comparison?: number[];
+  comparisonLabel?: string;
   scenario?: number[];
 }
 
@@ -24,38 +27,54 @@ interface ChartDataPoint {
   hour: number;
   hourLabel: string;
   baseline: number;
+  comparison?: number;
   scenario?: number;
 }
 
 interface PayloadItem {
   dataKey: string;
   value: number;
+  color?: string;
 }
 
 interface CustomTooltipProps {
   active?: boolean;
   payload?: PayloadItem[];
   label?: string;
+  baselineLabel?: string;
+  comparisonLabel?: string;
 }
 
 function formatHour(hour: number): string {
   return `${hour.toString().padStart(2, '0')}:00`;
 }
 
-function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+function CustomTooltipContent({
+  active,
+  payload,
+  label,
+  baselineLabel = 'Baseline',
+  comparisonLabel = 'Comparison',
+}: CustomTooltipProps) {
   if (!active || !payload || payload.length === 0) {
     return null;
   }
 
   const baselineValue = payload.find((p) => p.dataKey === 'baseline')?.value;
+  const comparisonValue = payload.find((p) => p.dataKey === 'comparison')?.value;
   const scenarioValue = payload.find((p) => p.dataKey === 'scenario')?.value;
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
       <p className="font-semibold text-gray-700 mb-2">{label}</p>
       {baselineValue !== undefined && (
-        <p className="text-gray-500">
-          Baseline: <span className="font-medium">{baselineValue.toFixed(1)} mmol/L</span>
+        <p className="text-gray-600">
+          {baselineLabel}: <span className="font-medium">{baselineValue.toFixed(1)} mmol/L</span>
+        </p>
+      )}
+      {comparisonValue !== undefined && (
+        <p className="text-purple-600">
+          {comparisonLabel}: <span className="font-medium">{comparisonValue.toFixed(1)} mmol/L</span>
         </p>
       )}
       {scenarioValue !== undefined && (
@@ -63,7 +82,15 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
           Scenario: <span className="font-medium">{scenarioValue.toFixed(1)} mmol/L</span>
         </p>
       )}
-      {baselineValue !== undefined && scenarioValue !== undefined && (
+      {baselineValue !== undefined && comparisonValue !== undefined && (
+        <p className="text-gray-600 mt-1 pt-1 border-t border-gray-100">
+          Δ: <span className={comparisonValue < baselineValue ? 'text-green-600' : comparisonValue > baselineValue ? 'text-red-600' : ''}>
+            {(comparisonValue - baselineValue) > 0 ? '+' : ''}
+            {(comparisonValue - baselineValue).toFixed(1)} mmol/L
+          </span>
+        </p>
+      )}
+      {baselineValue !== undefined && scenarioValue !== undefined && !comparisonValue && (
         <p className="text-gray-600 mt-1 pt-1 border-t border-gray-100">
           Δ: <span className={scenarioValue < baselineValue ? 'text-green-600' : scenarioValue > baselineValue ? 'text-red-600' : ''}>
             {(scenarioValue - baselineValue) > 0 ? '+' : ''}
@@ -75,12 +102,19 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   );
 }
 
-export function GlucoseChart({ baseline, scenario }: GlucoseChartProps) {
+export function GlucoseChart({
+  baseline,
+  baselineLabel = 'Baseline',
+  comparison,
+  comparisonLabel = 'Comparison',
+  scenario,
+}: GlucoseChartProps) {
   // Transform data for Recharts
   const data: ChartDataPoint[] = baseline.map((value, index) => ({
     hour: index,
     hourLabel: formatHour(index),
     baseline: value,
+    comparison: comparison?.[index],
     scenario: scenario?.[index],
   }));
 
@@ -125,18 +159,37 @@ export function GlucoseChart({ baseline, scenario }: GlucoseChartProps) {
             }}
           />
 
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip
+            content={
+              <CustomTooltipContent
+                baselineLabel={baselineLabel}
+                comparisonLabel={comparisonLabel}
+              />
+            }
+          />
 
           {/* Baseline line - grey dashed */}
           <Line
             type="monotone"
             dataKey="baseline"
-            stroke="#9ca3af"
+            stroke="#6b7280"
             strokeWidth={2}
             strokeDasharray="5 5"
             dot={false}
-            name="Baseline"
+            name={baselineLabel}
           />
+
+          {/* Comparison line - purple solid */}
+          {comparison && (
+            <Line
+              type="monotone"
+              dataKey="comparison"
+              stroke="#9333ea"
+              strokeWidth={2}
+              dot={false}
+              name={comparisonLabel}
+            />
+          )}
 
           {/* Scenario line - blue solid (only if scenario data exists) */}
           {scenario && (

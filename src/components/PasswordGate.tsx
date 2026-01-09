@@ -6,8 +6,7 @@ interface PasswordGateProps {
 
 const STORAGE_KEY = 'bssm_authenticated';
 
-// Set your password in the environment variable VITE_APP_PASSWORD
-const CORRECT_PASSWORD = import.meta.env.VITE_APP_PASSWORD || 'glucose2024';
+const CORRECT_PASSWORD = 'entropy';
 
 export function PasswordGate({ children }: PasswordGateProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);

@@ -9,11 +9,16 @@ function App() {
   const {
     baseline,
     baselineKey,
+    baselineLabel,
+    comparison,
+    comparisonKey,
+    comparisonLabel,
     interventions,
     scenario,
     baselineMetrics,
     scenarioMetrics,
     setBaselineKey,
+    setComparisonKey,
     addIntervention,
     updateInterventionParams,
     toggleIntervention,
@@ -36,7 +41,12 @@ function App() {
             <h1 className="text-2xl font-bold text-gray-900">
               Blood Sugar Scenario Modeler
             </h1>
-            <BaselineSelector selected={baselineKey} onChange={setBaselineKey} />
+            <BaselineSelector
+              selected={baselineKey}
+              onChange={setBaselineKey}
+              comparison={comparisonKey}
+              onComparisonChange={setComparisonKey}
+            />
           </div>
         </header>
 
@@ -49,8 +59,14 @@ function App() {
               <h2 className="text-lg font-semibold text-gray-800 mb-4">
                 24-Hour Glucose Profile
               </h2>
-              <GlucoseChart baseline={baseline} scenario={displayScenario} />
-              <div className="mt-4 flex items-center gap-6 text-sm text-gray-600">
+              <GlucoseChart
+                baseline={baseline}
+                baselineLabel={baselineLabel}
+                comparison={comparison ?? undefined}
+                comparisonLabel={comparisonLabel ?? undefined}
+                scenario={displayScenario}
+              />
+              <div className="mt-4 flex items-center gap-6 text-sm text-gray-600 flex-wrap">
                 <div className="flex items-center gap-2">
                   <div
                     className="w-6 h-0.5 bg-gray-400"
@@ -60,12 +76,20 @@ function App() {
                       borderColor: '#9ca3af',
                     }}
                   ></div>
-                  <span>Baseline</span>
+                  <span>{baselineLabel}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-0.5 bg-blue-500"></div>
-                  <span>Scenario</span>
-                </div>
+                {comparison && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-0.5 bg-purple-600"></div>
+                    <span>{comparisonLabel}</span>
+                  </div>
+                )}
+                {displayScenario && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-0.5 bg-blue-500"></div>
+                    <span>Scenario</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-green-500/20 border border-green-500/30 rounded"></div>
                   <span>Target Range (3.9-10.0)</span>
